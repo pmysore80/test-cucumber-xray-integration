@@ -10,21 +10,25 @@ jobs:
   delayed-start:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for 60 seconds
-        run: sleep $((60)) # 6 hours in seconds
+      - name: Wait for 6 hours
+        run: sleep $((6 * 3600)) # 6 hours in seconds
 
-      - name: Restore parameters from cache
-        uses: actions/cache@v3
+      - name: Download parameters artifact
+        uses: actions/download-artifact@v3
         with:
-          path: parameters_${{ github.run_id }}.txt
-          key: ${{ github.run_id }}
+          name: parameters-${{ github.event.workflow_run.outputs.unique_id }}
 
       - name: Read parameters from file
         id: read_params
         run: |
-          source parameters_${{ github.run_id }}.txt
-          echo "::set-output name=param1::$param1"
-          echo "::set-output name=param2::$param2"
+          if [ -f parameters_${{ github.event.workflow_run.outputs.unique_id }}.txt ]; then
+            source parameters_${{ github.event.workflow_run.outputs.unique_id }}.txt
+            echo "::set-output name=param1::$param1"
+            echo "::set-output name=param2::$param2"
+          else
+            echo "Parameter file not found!"
+            exit 1
+          fi
 
       - name: Use parameters
         run: |
