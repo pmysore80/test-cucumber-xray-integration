@@ -13,13 +13,17 @@ jobs:
         id: generate_id
         run: echo "::set-output name=id::$(uuidgen)"
 
-      - name: Save parameters to cache
+      - name: Save parameters to file
         run: |
           echo "param1=value1" > parameters_${{ steps.generate_id.outputs.id }}.txt
           echo "param2=value2" >> parameters_${{ steps.generate_id.outputs.id }}.txt
 
-      - name: Cache parameters
-        uses: actions/cache@v3
+      - name: Upload parameters as artifact
+        uses: actions/upload-artifact@v3
         with:
+          name: parameters-${{ steps.generate_id.outputs.id }}
           path: parameters_${{ steps.generate_id.outputs.id }}.txt
-          key: ${{ steps.generate_id.outputs.id }}
+
+      - name: Save unique ID for later use
+        id: save_id
+        run: echo "unique_id=${{ steps.generate_id.outputs.id }}" >> $GITHUB_ENV
