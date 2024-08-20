@@ -1,0 +1,29 @@
+name: Delayed Second Workflow
+
+on:
+  workflow_run:
+    workflows: ["Trigger First Workflow"] # Name of the first workflow
+    types:
+      - completed
+
+jobs:
+  delayed-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for 1 minute
+        run: sleep $((60))
+
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Read parameters from file
+        id: read_params
+        run: |
+          source parameters.txt
+          echo "::set-output name=param1::$param1"
+          echo "::set-output name=param2::$param2"
+
+      - name: Use parameters
+        run: |
+          echo "Parameter 1: ${{ steps.read_params.outputs.param1 }}"
+          echo "Parameter 2: ${{ steps.read_params.outputs.param2 }}"
