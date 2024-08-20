@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Wait for 6 hours
-        run: sleep $((6 * 3600)) # 6 hours in seconds
+        run: sleep $((60)) # 6 hours in seconds
 
       - name: Download parameters artifact
         uses: actions/download-artifact@v3
