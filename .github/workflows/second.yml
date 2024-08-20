@@ -11,33 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Wait for 6 hours
-        run: sleep $((60)) # 6 hours in seconds
+        run: sleep $((6 * 3600)) # 6 hours in seconds
 
-      - name: Download unique ID artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: unique-id
-
-      - name: Read unique ID
-        id: read_id
+      - name: Retrieve unique ID from secrets
+        id: retrieve_id
         run: |
-          unique_id=$(cat unique_id.txt)
-          echo "Unique ID: $unique_id"
-          echo "::set-output name=unique_id::$unique_id"
+          UNIQUE_ID=$(gh secret get UNIQUE_ID_${{ github.run_id }})
+          echo "Unique ID: $UNIQUE_ID"
+          echo "::set-output name=unique_id::$UNIQUE_ID"
 
-      - name: Download corresponding parameters artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: parameters-${{ steps.read_id.outputs.unique_id }}
-
-      - name: Read parameters from file
-        id: read_params
+      - name: Retrieve parameters from secrets
+        id: retrieve_params
         run: |
-          source parameters_${{ steps.read_id.outputs.unique_id }}.txt
+          PARAMETERS=$(gh secret get PARAMETERS_${{ steps.retrieve_id.outputs.unique_id }})
+          echo "$PARAMETERS" > parameters.txt
+          source parameters.txt
           echo "::set-output name=param1::$param1"
           echo "::set-output name=param2::$param2"
 
       - name: Use parameters
         run: |
-          echo "Parameter 1: ${{ steps.read_params.outputs.param1 }}"
-          echo "Parameter 2: ${{ steps.read_params.outputs.param2 }}"
+          echo "Parameter 1: ${{ steps.retrieve_params.outputs.param1 }}"
+          echo "Parameter 2: ${{ steps.retrieve_params.outputs.param2 }}"
