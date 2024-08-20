@@ -24,5 +24,11 @@ jobs:
           name: parameters-${{ steps.generate_id.outputs.id }}
           path: parameters_${{ steps.generate_id.outputs.id }}.txt
 
-      - name: Pass unique ID as output
-        run: echo "::set-output name=unique_id::${{ steps.generate_id.outputs.id }}"
+      - name: Save unique ID for later use
+        run: echo "${{ steps.generate_id.outputs.id }}" > unique_id.txt
+
+      - name: Upload unique ID as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: unique-id
+          path: unique_id.txt
