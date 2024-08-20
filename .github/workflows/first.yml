@@ -9,12 +9,20 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate unique identifier
+        id: generate_id
+        run: echo "::set-output name=id::$(uuidgen)"
+
       - name: Set parameters
         run: |
-          echo "param1=value1" > parameters.txt
-          echo "param2=value2" >> parameters.txt
-      - name: Commit parameters file
-        uses: stefanzweifel/git-auto-commit-action@v4
+          echo "param1=value1" > parameters_${{ steps.generate_id.outputs.id }}.txt
+          echo "param2=value2" >> parameters_${{ steps.generate_id.outputs.id }}.txt
+
+      - name: Upload parameters as artifact
+        uses: actions/upload-artifact@v3
         with:
-          commit_message: "Update parameters for scheduled workflow"
-          file_pattern: parameters.txt
+          name: parameters-${{ steps.generate_id.outputs.id }}
+          path: parameters_${{ steps.generate_id.outputs.id }}.txt
+
+      - name: Pass unique ID as output
+        run: echo "::set-output name=unique_id::${{ steps.generate_id.outputs.id }}"
