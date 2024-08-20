@@ -14,7 +14,7 @@ jobs:
         run: echo "Unique ID: ${{ github.event.workflow_run.outputs.unique_id }}"
 
       - name: Wait for 6 hours
-        run: sleep $((6 * 3600)) # 6 hours in seconds
+        run: sleep $((60)) # 6 hours in seconds
 
       - name: Download corresponding parameters artifact
         uses: actions/download-artifact@v3
