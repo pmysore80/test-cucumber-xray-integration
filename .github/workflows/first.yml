@@ -1,0 +1,20 @@
+name: Trigger First Workflow
+
+on:
+  workflow_dispatch: # Manually trigger the first workflow
+  schedule:
+    - cron: "0 0 * * *" # Schedule (every day at midnight)
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set parameters
+        run: |
+          echo "param1=value1" > parameters.txt
+          echo "param2=value2" >> parameters.txt
+      - name: Commit parameters file
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update parameters for scheduled workflow"
+          file_pattern: parameters.txt
