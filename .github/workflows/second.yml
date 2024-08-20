@@ -2,7 +2,7 @@ name: Delayed Second Workflow
 
 on:
   workflow_run:
-    workflows: ["Trigger First Workflow"]
+    workflows: ["Trigger First Workflow"] # Exact name of the first workflow
     types:
       - completed
 
@@ -10,21 +10,30 @@ jobs:
   delayed-start:
     runs-on: ubuntu-latest
     steps:
-      - name: Get unique identifier from triggering workflow
-        run: echo "Unique ID: ${{ github.event.workflow_run.outputs.unique_id }}"
-
       - name: Wait for 6 hours
-        run: sleep $((60)) # 6 hours in seconds
+        run: sleep $((6 * 3600)) # 6 hours in seconds
+
+      - name: Download unique ID artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: unique-id
+
+      - name: Read unique ID
+        id: read_id
+        run: |
+          unique_id=$(cat unique_id.txt)
+          echo "Unique ID: $unique_id"
+          echo "::set-output name=unique_id::$unique_id"
 
       - name: Download corresponding parameters artifact
         uses: actions/download-artifact@v3
         with:
-          name: parameters-${{ github.event.workflow_run.outputs.unique_id }}
+          name: parameters-${{ steps.read_id.outputs.unique_id }}
 
       - name: Read parameters from file
         id: read_params
         run: |
-          source parameters_${{ github.event.workflow_run.outputs.unique_id }}.txt
+          source parameters_${{ steps.read_id.outputs.unique_id }}.txt
           echo "::set-output name=param1::$param1"
           echo "::set-output name=param2::$param2"
 
