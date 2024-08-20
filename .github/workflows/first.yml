@@ -13,22 +13,12 @@ jobs:
         id: generate_id
         run: echo "::set-output name=id::$(uuidgen)"
 
-      - name: Set parameters
+      - name: Save parameters to environment variables
         run: |
-          echo "param1=value1" > parameters_${{ steps.generate_id.outputs.id }}.txt
-          echo "param2=value2" >> parameters_${{ steps.generate_id.outputs.id }}.txt
+          echo "param1=value1" > parameters.txt
+          echo "param2=value2" >> parameters.txt
 
-      - name: Upload parameters as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: parameters-${{ steps.generate_id.outputs.id }}
-          path: parameters_${{ steps.generate_id.outputs.id }}.txt
-
-      - name: Save unique ID for later use
-        run: echo "${{ steps.generate_id.outputs.id }}" > unique_id.txt
-
-      - name: Upload unique ID as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: unique-id
-          path: unique_id.txt
+      - name: Save Unique ID to GitHub Secrets
+        run: |
+          gh secret set UNIQUE_ID_${{ steps.generate_id.outputs.id }} --body ${{ steps.generate_id.outputs.id }}
+          gh secret set PARAMETERS_${{ steps.generate_id.outputs.id }} --body "$(cat parameters.txt)"
